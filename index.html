@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Website Selector — AI Prompt Builder | Voss Systems</title>
+  <meta name="description" content="Pick a style, set your sections, and get a structured, build-ready prompt for any AI website builder. No account, no email gate.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Hero -->
+  <header class="hero">
+    <div class="hero-inner">
+      <p class="kicker">Voss Systems · Website Selector</p>
+      <h1>
+        <span>Build the prompt first.</span>
+        <span class="accent">The website follows.</span>
+      </h1>
+      <p class="hero-sub">
+        AI builders return what you feed them. Set the style, the sections,
+        and the goal below, and this tool assembles a structured prompt
+        you can paste into any of them.
+      </p>
+      <p class="hero-note">No account. No email gate. Runs in your browser.</p>
+    </div>
+  </header>
+
+  <main class="wrap">
+
+    <!-- Step 1 -->
+    <section class="step" id="step-purpose">
+      <div class="step-head">
+        <span class="step-num">1</span>
+        <h2>What is the site for?</h2>
+      </div>
+      <p class="step-hint">One or two sentences. Who it serves and what it has to do. Specifics beat adjectives.</p>
+      <textarea id="purpose" rows="3" class="field" placeholder="Example: A two-person landscaping company in Nashville. The site needs to collect quote requests and show past work."></textarea>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Step 2 -->
+    <section class="step" id="step-business">
+      <div class="step-head">
+        <span class="step-num">2</span>
+        <h2>What kind of business?</h2>
+      </div>
+      <p class="step-hint">Pick one, or type your own below.</p>
+      <div class="chip-row" id="business-chips"></div>
+      <input type="text" id="business-custom" class="field" placeholder="Or type your own: bakery, HVAC, bookkeeping...">
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Step 3 -->
+    <section class="step" id="step-style">
+      <div class="step-head">
+        <span class="step-num">3</span>
+        <h2>Pick a style</h2>
+      </div>
+      <p class="step-hint">This sets the whole visual direction. Choose the one closest and refine later.</p>
+      <div class="style-grid" id="style-grid"></div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Step 4 -->
+    <section class="step" id="step-sections">
+      <div class="step-head">
+        <span class="step-num">4</span>
+        <h2>Assemble the page</h2>
+      </div>
+      <p class="step-hint">Add the sections the page needs. Drag to reorder. Fewer sections, tighter page.</p>
+
+      <p class="list-label"><span class="dot"></span>Your page, in order</p>
+      <ul class="section-list" id="section-list"></ul>
+
+      <p class="list-label add-label">Add sections</p>
+      <div class="chip-row" id="add-chips"></div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Step 5 -->
+    <section class="step" id="step-cta">
+      <div class="step-head">
+        <span class="step-num">5</span>
+        <h2>What should the main button say?</h2>
+      </div>
+      <p class="step-hint">The one action you want visitors to take.</p>
+      <input type="text" id="cta-text" class="field" placeholder="Get a quote">
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Output -->
+    <section class="output">
+      <div class="output-head">
+        <p class="list-label"><span class="dot live"></span>Your prompt</p>
+        <span class="word-count" id="word-count">0 words</span>
+      </div>
+      <div class="prompt-box" id="prompt-box">
+        <pre id="prompt-output"></pre>
+        <div class="prompt-fade" id="prompt-fade"></div>
+        <button type="button" class="expand-btn" id="expand-btn">Expand</button>
+      </div>
+      <button type="button" class="copy-btn" id="copy-btn">Copy prompt</button>
+      <p class="paste-note">
+        Paste it into <strong>Lovable</strong>, <strong>Bolt</strong>, <strong>v0</strong>,
+        <strong>Claude</strong>, or any AI builder. First output is a draft.
+        Change one input at a time and regenerate.
+      </p>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Go deeper -->
+    <section class="deeper">
+      <h3>Go deeper</h3>
+      <p>
+        This tool is one small system. The newsletter documents the bigger ones:
+        AI pipelines and automations that hold up in production, written up with
+        the failures left in.
+      </p>
+      <a class="deeper-btn" href="#" id="newsletter-link">Read Voss Systems</a>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <p>Voss Systems · Systems over hustle.</p>
+    <p class="footer-byline">Built and maintained by Jordan Voss.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
