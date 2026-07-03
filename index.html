@@ -54,9 +54,35 @@
     <div class="divider"></div>
 
     <!-- Step 3 -->
-    <section class="step" id="step-style">
+    <section class="step" id="step-audience">
       <div class="step-head">
         <span class="step-num">3</span>
+        <h2>Who is the visitor?</h2>
+      </div>
+      <p class="step-hint">Not the owner. The person landing on the page. The copy gets written for them.</p>
+      <input type="text" id="audience" class="field" placeholder="Example: homeowners comparing three quotes for a driveway job.">
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Step 4 -->
+    <section class="step" id="step-objections">
+      <div class="step-head">
+        <span class="step-num">4</span>
+        <h2>What would stop them?</h2>
+      </div>
+      <p class="step-hint">The objections the copy has to answer. One per line.</p>
+      <textarea id="objections" rows="3" class="field" placeholder="Looks expensive.
+Can I trust these people with my property?
+How long does it take?"></textarea>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Step 5 -->
+    <section class="step" id="step-style">
+      <div class="step-head">
+        <span class="step-num">5</span>
         <h2>Pick a style</h2>
       </div>
       <p class="step-hint">This sets the whole visual direction. Choose the one closest and refine later.</p>
@@ -65,10 +91,10 @@
 
     <div class="divider"></div>
 
-    <!-- Step 4 -->
+    <!-- Step 6 -->
     <section class="step" id="step-sections">
       <div class="step-head">
-        <span class="step-num">4</span>
+        <span class="step-num">6</span>
         <h2>Assemble the page</h2>
       </div>
       <p class="step-hint">Add the sections the page needs. Drag to reorder. Fewer sections, tighter page.</p>
@@ -82,10 +108,10 @@
 
     <div class="divider"></div>
 
-    <!-- Step 5 -->
+    <!-- Step 7 -->
     <section class="step" id="step-cta">
       <div class="step-head">
-        <span class="step-num">5</span>
+        <span class="step-num">7</span>
         <h2>What should the main button say?</h2>
       </div>
       <p class="step-hint">The one action you want visitors to take.</p>
@@ -100,16 +126,25 @@
         <p class="list-label"><span class="dot live"></span>Your prompt</p>
         <span class="word-count" id="word-count">0 words</span>
       </div>
+      <div class="output-tabs" role="tablist">
+        <button type="button" class="tab active" id="tab-build" role="tab" aria-selected="true">Build prompt</button>
+        <button type="button" class="tab" id="tab-research" role="tab" aria-selected="false">Research prompt</button>
+      </div>
       <div class="prompt-box" id="prompt-box">
         <pre id="prompt-output"></pre>
         <div class="prompt-fade" id="prompt-fade"></div>
         <button type="button" class="expand-btn" id="expand-btn">Expand</button>
       </div>
       <button type="button" class="copy-btn" id="copy-btn">Copy prompt</button>
-      <p class="paste-note">
+      <p class="paste-note" id="note-build">
         Paste it into <strong>Lovable</strong>, <strong>Bolt</strong>, <strong>v0</strong>,
         <strong>Claude</strong>, or any AI builder. First output is a draft.
         Change one input at a time and regenerate.
+      </p>
+      <p class="paste-note hidden" id="note-research">
+        Run this first, in an AI that can search the web. It comes back with a
+        brief on what works in the niche. Fill the steps above from the brief,
+        then copy the build prompt.
       </p>
     </section>
 

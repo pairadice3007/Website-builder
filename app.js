@@ -93,6 +93,8 @@
     purpose: "",
     business: "",
     businessCustom: "",
+    audience: "",
+    objections: "",
     style: STYLES[0],
     page: DEFAULT_PAGE.slice(),
   };
@@ -103,6 +105,12 @@
     purpose: document.getElementById("purpose"),
     businessChips: document.getElementById("business-chips"),
     businessCustom: document.getElementById("business-custom"),
+    audience: document.getElementById("audience"),
+    objections: document.getElementById("objections"),
+    tabBuild: document.getElementById("tab-build"),
+    tabResearch: document.getElementById("tab-research"),
+    noteBuild: document.getElementById("note-build"),
+    noteResearch: document.getElementById("note-research"),
     styleGrid: document.getElementById("style-grid"),
     sectionList: document.getElementById("section-list"),
     addChips: document.getElementById("add-chips"),
@@ -296,21 +304,39 @@
 
   // ---------- Prompt ----------
 
+  function objectionList() {
+    return state.objections
+      .split("\n")
+      .map((line) => line.replace(/^[-*]\s*/, "").trim())
+      .filter(Boolean);
+  }
+
   function buildPrompt() {
     const purpose = state.purpose || "[Describe your website or business here]";
     const business = state.businessCustom || state.business || "[Business type]";
     const cta = el.ctaText.value.trim() || DEFAULT_CTA;
+    const objections = objectionList();
 
     const structure = state.page
       .map((key, i) => `${i + 1}. ${SECTIONS[key].line(cta)}`)
       .join("\n");
 
-    return [
+    const lines = [
       "Build me a complete, production-quality single-page website.",
       "",
       `**What it's for:** ${purpose}`,
       `**Business type:** ${business}`,
-      `**Design direction:** ${state.style.prompt}`,
+    ];
+    if (state.audience) {
+      lines.push(`**Who the visitor is:** ${state.audience} Write every line of copy for this person.`);
+    }
+    lines.push(`**Design direction:** ${state.style.prompt}`);
+    if (objections.length) {
+      lines.push("");
+      lines.push("**Objections the copy must answer:**");
+      objections.forEach((o) => lines.push(`- ${o}`));
+    }
+    lines.push(
       "",
       "**Page structure, top to bottom:**",
       structure,
@@ -321,20 +347,70 @@
       "- Build it as a single page in React with Tailwind CSS. No routing.",
       "- Fully responsive. Check it at 375px, 768px, and 1280px.",
       "- Semantic HTML and readable contrast. No body text under 14px.",
-      "- Write real copy for the business described above. No lorem ipsum.",
+      "- Write real copy for the business described above. No lorem ipsum."
+    );
+    if (objections.length) {
+      lines.push("- Answer every objection listed above somewhere on the page. The FAQ is the natural home for most of them.");
+    }
+    lines.push(
       "- Subtle hover and scroll transitions are fine. Nothing that moves on its own.",
       "- One font family, two weights. One accent color, used consistently.",
-      "- Every section earns its place. If it has nothing to say, leave it out.",
+      "- Every section earns its place. If it has nothing to say, leave it out."
+    );
+    return lines.join("\n");
+  }
+
+  function buildResearchPrompt() {
+    const purpose = state.purpose || "[Describe your website or business here]";
+    const business = state.businessCustom || state.business || "[Business type]";
+
+    return [
+      "Before I build a website, research what already works in this niche.",
+      "",
+      `**The site I'm planning:** ${purpose}`,
+      `**Business type:** ${business}`,
+      "",
+      `Find five top-performing ${business} websites. Judge top performers by search ranking, review count and rating, and how clearly the site drives one action. Use your web search or scraping tools. If you cannot browse the web, say so and answer from what you know instead of guessing.`,
+      "",
+      "**Answer these five questions in short bullets, based on the top performers:**",
+      "1. Who is the visitor these sites serve? Not the owner. The person landing on the page.",
+      "2. What one action do they push that visitor toward?",
+      "3. What objections do they answer, and where: FAQ, testimonials, guarantees?",
+      "4. What visual style do they share: colors, photography, tone?",
+      "5. What page sections show up on nearly all of them, and in what order?",
+      "",
+      "**Then return a build brief:** two sentences on purpose and audience, the primary call to action, the top three objections to answer, a style direction, and a section list in order. I will paste that brief into a website builder prompt.",
     ].join("\n");
   }
 
+  let activeTab = "build";
   let lastPrompt = null;
   let lastWords = 0;
   let glowTimer = null;
   let countFrame = null;
 
+  function activePrompt() {
+    return activeTab === "build" ? buildPrompt() : buildResearchPrompt();
+  }
+
+  function setTab(tab) {
+    if (tab === activeTab) return;
+    activeTab = tab;
+    el.tabBuild.classList.toggle("active", tab === "build");
+    el.tabResearch.classList.toggle("active", tab === "research");
+    el.tabBuild.setAttribute("aria-selected", String(tab === "build"));
+    el.tabResearch.setAttribute("aria-selected", String(tab === "research"));
+    el.noteBuild.classList.toggle("hidden", tab !== "build");
+    el.noteResearch.classList.toggle("hidden", tab !== "research");
+    lastPrompt = null; // switch without glow
+    renderPrompt();
+  }
+
+  el.tabBuild.addEventListener("click", () => setTab("build"));
+  el.tabResearch.addEventListener("click", () => setTab("research"));
+
   function renderPrompt() {
-    const prompt = buildPrompt();
+    const prompt = activePrompt();
     if (prompt === lastPrompt) return;
     const isFirst = lastPrompt === null;
     lastPrompt = prompt;
@@ -374,6 +450,16 @@
     renderPrompt();
   });
 
+  el.audience.addEventListener("input", () => {
+    state.audience = el.audience.value.trim();
+    renderPrompt();
+  });
+
+  el.objections.addEventListener("input", () => {
+    state.objections = el.objections.value;
+    renderPrompt();
+  });
+
   el.ctaText.addEventListener("input", renderPrompt);
 
   // ---------- Expand / copy ----------
@@ -384,7 +470,7 @@
   });
 
   el.copyBtn.addEventListener("click", async () => {
-    const text = buildPrompt();
+    const text = activePrompt();
     let ok = false;
     try {
       await navigator.clipboard.writeText(text);

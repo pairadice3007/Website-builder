@@ -418,6 +418,34 @@ input.field { margin-top: 4px; }
   font-variant-numeric: tabular-nums;
 }
 
+.output-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.tab {
+  padding: 8px 18px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tab:hover { border-color: var(--blue); color: var(--blue); }
+
+.tab.active {
+  background: var(--slate);
+  border-color: var(--slate);
+  color: var(--white);
+}
+
+.paste-note.hidden { display: none; }
+
 .prompt-box {
   position: relative;
   border: 1px solid var(--line);
