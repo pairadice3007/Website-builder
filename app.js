@@ -4,6 +4,8 @@
 (function () {
   "use strict";
 
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
   // ---------- Data ----------
 
   const BUSINESS_TYPES = [
@@ -205,8 +207,7 @@
         <button type="button" class="remove-btn" aria-label="Remove ${s.name}">✕</button>`;
 
       li.querySelector(".remove-btn").addEventListener("click", () => {
-        state.page.splice(i, 1);
-        renderSections();
+        withFlip(() => state.page.splice(i, 1));
         renderAddChips();
         renderPrompt();
       });
@@ -234,10 +235,42 @@
 
   function moveSection(from, to) {
     if (to < 0 || to >= state.page.length) return;
-    const [moved] = state.page.splice(from, 1);
-    state.page.splice(to, 0, moved);
-    renderSections();
+    withFlip(() => {
+      const [moved] = state.page.splice(from, 1);
+      state.page.splice(to, 0, moved);
+    });
     renderPrompt();
+  }
+
+  // FLIP: measure item positions, mutate and re-render, then animate each
+  // item from its old position to its new one. New items scale in.
+  function withFlip(mutate) {
+    if (reducedMotion) {
+      mutate();
+      renderSections();
+      return;
+    }
+    const first = {};
+    el.sectionList.querySelectorAll(".section-item").forEach((li) => {
+      first[li.dataset.key] = li.getBoundingClientRect().top;
+    });
+    mutate();
+    renderSections();
+    el.sectionList.querySelectorAll(".section-item").forEach((li) => {
+      const was = first[li.dataset.key];
+      const now = li.getBoundingClientRect().top;
+      if (was === undefined) {
+        li.animate(
+          [{ opacity: 0, transform: "scale(0.96)" }, { opacity: 1, transform: "scale(1)" }],
+          { duration: 220, easing: "ease-out" }
+        );
+      } else if (was !== now) {
+        li.animate(
+          [{ transform: `translateY(${was - now}px)` }, { transform: "translateY(0)" }],
+          { duration: 220, easing: "cubic-bezier(0.2, 0.8, 0.2, 1)" }
+        );
+      }
+    });
   }
 
   function renderAddChips() {
@@ -248,11 +281,12 @@
       btn.className = "chip add";
       btn.textContent = SECTIONS[key].name;
       btn.addEventListener("click", () => {
-        // insert before the footer if there is one, otherwise append
-        const footerIdx = state.page.indexOf("footer");
-        if (footerIdx === -1) state.page.push(key);
-        else state.page.splice(footerIdx, 0, key);
-        renderSections();
+        withFlip(() => {
+          // insert before the footer if there is one, otherwise append
+          const footerIdx = state.page.indexOf("footer");
+          if (footerIdx === -1) state.page.push(key);
+          else state.page.splice(footerIdx, 0, key);
+        });
         renderAddChips();
         renderPrompt();
       });
@@ -294,11 +328,45 @@
     ].join("\n");
   }
 
+  let lastPrompt = null;
+  let lastWords = 0;
+  let glowTimer = null;
+  let countFrame = null;
+
   function renderPrompt() {
     const prompt = buildPrompt();
+    if (prompt === lastPrompt) return;
+    const isFirst = lastPrompt === null;
+    lastPrompt = prompt;
     el.output.textContent = prompt;
+
     const words = prompt.trim().split(/\s+/).length;
-    el.wordCount.textContent = `${words} words`;
+    if (isFirst || reducedMotion) {
+      el.wordCount.textContent = `${words} words`;
+    } else {
+      tweenCount(lastWords, words);
+      flashPromptBox();
+    }
+    lastWords = words;
+  }
+
+  function tweenCount(from, to) {
+    if (countFrame) cancelAnimationFrame(countFrame);
+    const t0 = performance.now();
+    const dur = 250;
+    const step = (t) => {
+      const p = Math.min(1, (t - t0) / dur);
+      const eased = 1 - Math.pow(1 - p, 3);
+      el.wordCount.textContent = `${Math.round(from + (to - from) * eased)} words`;
+      if (p < 1) countFrame = requestAnimationFrame(step);
+    };
+    countFrame = requestAnimationFrame(step);
+  }
+
+  function flashPromptBox() {
+    el.promptBox.classList.add("updated");
+    clearTimeout(glowTimer);
+    glowTimer = setTimeout(() => el.promptBox.classList.remove("updated"), 500);
   }
 
   el.purpose.addEventListener("input", () => {
@@ -336,6 +404,26 @@
       el.copyBtn.classList.remove("copied");
     }, 2000);
   });
+
+  // ---------- Scroll reveals ----------
+
+  if (!reducedMotion && "IntersectionObserver" in window) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible");
+            io.unobserve(entry.target);
+          }
+        });
+      },
+      { rootMargin: "0px 0px -60px 0px" }
+    );
+    document.querySelectorAll("main section").forEach((section) => {
+      section.classList.add("reveal");
+      io.observe(section);
+    });
+  }
 
   // ---------- Init ----------
 

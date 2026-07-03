@@ -415,6 +415,7 @@ input.field { margin-top: 4px; }
   font-family: var(--mono);
   font-size: 0.75rem;
   color: var(--muted);
+  font-variant-numeric: tabular-nums;
 }
 
 .prompt-box {
@@ -611,6 +612,63 @@ input.field { margin-top: 4px; }
 .prev-vibrant .p-h1 { background: linear-gradient(90deg, #8b5cf6, #ec4899); }
 .prev-vibrant .p-card { background: #1d1030; }
 .prev-vibrant .p-card .ic { background: #ec4899; }
+
+/* ---------- Motion ---------- */
+/* Everything here is feedback for a user action or scroll position.
+   Nothing runs on its own, and none of it runs under reduced motion. */
+
+@media (prefers-reduced-motion: no-preference) {
+
+  /* Scroll-triggered section reveals */
+  .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.55s ease, transform 0.55s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Press physics on chips and cards */
+  .chip:active { transform: scale(0.95); }
+
+  .style-card:active { transform: scale(0.98); }
+
+  .chip.selected { animation: chip-pop 0.2s ease; }
+
+  @keyframes chip-pop {
+    50% { transform: scale(1.06); }
+  }
+
+  /* Style-card wireframes draw in on hover */
+  @keyframes wire-in {
+    from { transform: scaleX(0.35); opacity: 0.4; }
+    to   { transform: scaleX(1); opacity: 1; }
+  }
+
+  @keyframes card-in {
+    from { transform: translateY(4px); opacity: 0.35; }
+    to   { transform: translateY(0); opacity: 1; }
+  }
+
+  .style-card:hover .p-h1  { animation: wire-in 0.28s ease 0s backwards; transform-origin: left; }
+  .style-card:hover .p-line.l1 { animation: wire-in 0.28s ease 0.05s backwards; transform-origin: left; }
+  .style-card:hover .p-line.l2 { animation: wire-in 0.28s ease 0.1s backwards; transform-origin: left; }
+  .style-card:hover .p-btn  { animation: wire-in 0.28s ease 0.15s backwards; transform-origin: left; }
+  .style-card:hover .p-card { animation: card-in 0.3s ease backwards; }
+  .style-card:hover .p-card:nth-child(1) { animation-delay: 0.18s; }
+  .style-card:hover .p-card:nth-child(2) { animation-delay: 0.24s; }
+  .style-card:hover .p-card:nth-child(3) { animation-delay: 0.3s; }
+
+  /* Prompt box glows while its content is changing */
+  .prompt-box { transition: box-shadow 0.4s ease; }
+
+  .prompt-box.updated {
+    box-shadow: 0 0 0 3px rgba(43, 108, 176, 0.15), 0 4px 24px rgba(43, 108, 176, 0.12);
+  }
+}
 
 /* ---------- Responsive ---------- */
 
